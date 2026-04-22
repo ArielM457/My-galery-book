@@ -7,19 +7,6 @@ const infoItems = [
   { id: 4, label: 'Enrutamiento', val: 'React Router v6' },
 ];
 
-const teamData = [
-  { nombre: 'Ariel', rol: 'Desarrollador web' },
-];
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 export function AboutPage() {
   return (
     <main className="about-page" aria-label="Acerca de JU Library">

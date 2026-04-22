@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Star, BookOpen, RotateCcw, Eye } from 'lucide-react';
+import { Star, RotateCcw, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store/store';

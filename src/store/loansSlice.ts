@@ -4,6 +4,8 @@ import type { BookReservation, UserLoanRecord } from '../types';
 
 const LOANS_STORAGE_KEY = 'julibrary-loans-state';
 const DEFAULT_LOAN_DAYS = 14;
+const MIN_LOAN_DAYS = 0;
+const MAX_LOAN_DAYS = 28;
 
 interface LoansState {
   loans: UserLoanRecord[];
@@ -35,6 +37,17 @@ interface CancelReservationPayload {
   userId: string;
 }
 
+interface CompleteAndReturnBookPayload {
+  loanId: string;
+  userId: string;
+}
+
+interface RateLoanBookPayload {
+  loanId: string;
+  userId: string;
+  rating: number;
+}
+
 function buildRecordId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -51,8 +64,16 @@ function loadPersistedLoansState(): LoansState {
 
   try {
     const parsedState = JSON.parse(rawState) as Partial<LoansState>;
+    const normalizedLoans = Array.isArray(parsedState.loans)
+      ? parsedState.loans.map(loan => ({
+        ...loan,
+        completedAt: loan?.completedAt ?? null,
+        rating: typeof loan?.rating === 'number' ? loan.rating : null,
+      }))
+      : [];
+
     return {
-      loans: Array.isArray(parsedState.loans) ? parsedState.loans : [],
+      loans: normalizedLoans,
       reservations: Array.isArray(parsedState.reservations) ? parsedState.reservations : [],
     };
   } catch (error) {
@@ -82,7 +103,9 @@ const loansSlice = createSlice({
 
       const borrowedAt = new Date();
       const dueDate = new Date(borrowedAt);
-      dueDate.setDate(dueDate.getDate() + loanDays);
+      const parsedLoanDays = Number.isFinite(loanDays) ? Math.floor(loanDays) : DEFAULT_LOAN_DAYS;
+      const safeLoanDays = Math.min(MAX_LOAN_DAYS, Math.max(MIN_LOAN_DAYS, parsedLoanDays));
+      dueDate.setDate(dueDate.getDate() + safeLoanDays);
 
       state.loans.push({
         loanId: buildRecordId('loan'),
@@ -93,6 +116,8 @@ const loansSlice = createSlice({
         borrowedAt: borrowedAt.toISOString(),
         dueAt: dueDate.toISOString(),
         returnedAt: null,
+        completedAt: null,
+        rating: null,
       });
 
       persistLoansState(state);
@@ -137,8 +162,36 @@ const loansSlice = createSlice({
       if (state.reservations.length === previousLength) return;
       persistLoansState(state);
     },
+    completeAndReturnBorrowedBook(state, action: PayloadAction<CompleteAndReturnBookPayload>) {
+      const { loanId, userId } = action.payload;
+      const activeLoan = state.loans.find(
+        loan => loan.loanId === loanId && loan.userId === userId && !loan.returnedAt
+      );
+      if (!activeLoan) return;
+
+      const now = new Date().toISOString();
+      activeLoan.returnedAt = now;
+      activeLoan.completedAt = now;
+      persistLoansState(state);
+    },
+    rateLoanBook(state, action: PayloadAction<RateLoanBookPayload>) {
+      const { loanId, userId, rating } = action.payload;
+      const loan = state.loans.find(existingLoan => existingLoan.loanId === loanId && existingLoan.userId === userId);
+      if (!loan) return;
+
+      const safeRating = Math.min(5, Math.max(1, Math.floor(rating)));
+      loan.rating = safeRating;
+      persistLoansState(state);
+    },
   },
 });
 
-export const { borrowBook, returnBorrowedBook, reserveBook, cancelReservation } = loansSlice.actions;
+export const {
+  borrowBook,
+  returnBorrowedBook,
+  reserveBook,
+  cancelReservation,
+  completeAndReturnBorrowedBook,
+  rateLoanBook,
+} = loansSlice.actions;
 export default loansSlice.reducer;

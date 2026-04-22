@@ -20,6 +20,8 @@ export interface UserLoanRecord {
   borrowedAt: string;
   dueAt: string;
   returnedAt: string | null;
+  completedAt: string | null;
+  rating: number | null;
 }
 
 export interface BookReservation {

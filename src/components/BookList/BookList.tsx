@@ -144,14 +144,14 @@ export function BookList() {
               canReturn={isBorrowedByCurrentUser}
               canReserve={!!activeLoan && !isBorrowedByCurrentUser}
               hasCurrentUserReservation={hasCurrentReservation}
-              onBorrow={() =>
+              onBorrow={loanDays =>
                 dispatch(
                   borrowBook({
                     bookId: libraryBook.bookId,
                     bookTitle: libraryBook.bookTitle,
                     userId: currentUserId,
                     userName: username ?? 'Usuario',
-                    loanDays: 14,
+                    loanDays,
                   })
                 )
               }

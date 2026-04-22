@@ -148,6 +148,38 @@
   font-weight: 700;
 }
 
+.book-card__loan-help-text {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.book-card__loan-date-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.book-card__loan-date-input {
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 12px;
+}
+
+.book-card__loan-date-input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.book-card__loan-action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .book-card__loan-button {
   padding: 8px 10px;
   border-radius: 8px;
@@ -173,6 +205,15 @@
 .book-card__loan-button--secondary:hover {
   background-color: var(--color-surface-hover);
   border-color: var(--color-primary);
+}
+
+.book-card__loan-button:disabled,
+.book-card__loan-button:disabled:hover {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: var(--color-border);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 .book-card__wishlist-actions {

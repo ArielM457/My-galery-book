@@ -5,6 +5,9 @@ import type { LibraryBook } from '../../types';
 import { buildBookCoverImageUrl } from '../../api';
 import './BookCard.css';
 
+const MAX_LOAN_DAYS = 28;
+const DEFAULT_LOAN_DAYS = 14;
+
 function resolveAvailabilityStatusDisplayText(status: LibraryBook['availabilityStatus']): string {
   return status === 'available' ? 'Disponible' : 'Prestado';
 }
@@ -13,6 +16,47 @@ function formatAuthorNamesForDisplay(authorNames: string[]): string {
   if (authorNames.length === 0) return 'Autor desconocido';
   if (authorNames.length === 1) return authorNames[0];
   return `${authorNames[0]} y ${authorNames.length - 1} más`;
+}
+
+function formatDateForInput(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function addDays(baseDate: Date, days: number): Date {
+  const nextDate = new Date(baseDate);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function parseDateInputValue(dateValue: string): Date | null {
+  const [year, month, day] = dateValue.split('-').map(Number);
+  if (!year || !month || !day) return null;
+
+  const parsedDate = new Date(year, month - 1, day);
+  if (
+    parsedDate.getFullYear() !== year ||
+    parsedDate.getMonth() !== month - 1 ||
+    parsedDate.getDate() !== day
+  ) {
+    return null;
+  }
+
+  parsedDate.setHours(0, 0, 0, 0);
+  return parsedDate;
+}
+
+function resolveLoanDaysFromDate(dateValue: string): number | null {
+  const selectedDate = parseDateInputValue(dateValue);
+  if (!selectedDate) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.round((selectedDate.getTime() - today.getTime()) / msPerDay);
 }
 
 interface BookCardProps {
@@ -26,7 +70,7 @@ interface BookCardProps {
   canReserve?: boolean;
   canReturn?: boolean;
   hasCurrentUserReservation?: boolean;
-  onBorrow?: () => void;
+  onBorrow?: (loanDays: number) => void;
   onReserve?: () => void;
   onReturn?: () => void;
   onCancelReservation?: () => void;
@@ -57,14 +101,36 @@ export const BookCard = memo(function BookCard({
   onRemoveFromWishlist,
 }: BookCardProps) {
   const [hasCoverImageLoadFailed, setHasCoverImageLoadFailed] = useState(false);
+  const [isBorrowCalendarOpen, setIsBorrowCalendarOpen] = useState(false);
+
+  const todayDateValue = formatDateForInput(new Date());
+  const maxLoanDateValue = formatDateForInput(addDays(new Date(), MAX_LOAN_DAYS));
+  const defaultDueDateValue = formatDateForInput(addDays(new Date(), DEFAULT_LOAN_DAYS));
+  const [selectedDueDate, setSelectedDueDate] = useState(defaultDueDateValue);
 
   function handleCoverImageLoadError() {
     setHasCoverImageLoadFailed(true);
   }
 
+  function handleBorrowClick() {
+    if (!onBorrow) return;
+
+    const selectedLoanDays = resolveLoanDaysFromDate(selectedDueDate);
+    if (selectedLoanDays === null || selectedLoanDays < 0 || selectedLoanDays > MAX_LOAN_DAYS) return;
+
+    onBorrow(selectedLoanDays);
+    setIsBorrowCalendarOpen(false);
+    setSelectedDueDate(defaultDueDateValue);
+  }
+
+  const selectedLoanDays = resolveLoanDaysFromDate(selectedDueDate);
+  const isSelectedDateInvalid =
+    selectedLoanDays === null || selectedLoanDays < 0 || selectedLoanDays > MAX_LOAN_DAYS;
+
   const shouldRenderCoverPlaceholder = !book.coverImageId || hasCoverImageLoadFailed;
 
   const workId = book.bookId.replace('/works/', '');
+  const dueDateInputId = `loan-date-${workId.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 
   return (
     <article className="book-card">
@@ -137,9 +203,57 @@ export const BookCard = memo(function BookCard({
             )}
 
             {canBorrow && (
-              <button type="button" className="book-card__loan-button" onClick={onBorrow}>
-                Prestar 14 días
-              </button>
+              <>
+                {!isBorrowCalendarOpen && (
+                  <button
+                    type="button"
+                    className="book-card__loan-button"
+                    onClick={() => setIsBorrowCalendarOpen(true)}
+                  >
+                    Hacer Prestamo
+                  </button>
+                )}
+
+                {isBorrowCalendarOpen && (
+                  <>
+                    <p className="book-card__loan-help-text">
+                      Elige una fecha de devolución desde hoy hasta {MAX_LOAN_DAYS} días.
+                    </p>
+                    <label className="book-card__loan-date-label" htmlFor={dueDateInputId}>
+                      Fecha de devolución
+                    </label>
+                    <input
+                      id={dueDateInputId}
+                      className="book-card__loan-date-input"
+                      type="date"
+                      min={todayDateValue}
+                      max={maxLoanDateValue}
+                      value={selectedDueDate}
+                      onChange={event => setSelectedDueDate(event.target.value)}
+                    />
+                    <p className="book-card__loan-help-text">
+                      Duración seleccionada: {selectedLoanDays ?? 0} día{selectedLoanDays === 1 ? '' : 's'}.
+                    </p>
+                    <div className="book-card__loan-action-row">
+                      <button
+                        type="button"
+                        className="book-card__loan-button"
+                        onClick={handleBorrowClick}
+                        disabled={isSelectedDateInvalid}
+                      >
+                        Confirmar préstamo
+                      </button>
+                      <button
+                        type="button"
+                        className="book-card__loan-button book-card__loan-button--secondary"
+                        onClick={() => setIsBorrowCalendarOpen(false)}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </>
+                )}
+              </>
             )}
 
             {canReturn && (

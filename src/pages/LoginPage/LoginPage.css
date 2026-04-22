@@ -1,0 +1,118 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at top left, var(--color-surface-hover) 0%, transparent 32%),
+    var(--color-background);
+  padding: 24px 16px;
+}
+
+.login-page__card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  box-shadow: 0 10px 32px var(--color-card-shadow);
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 390px;
+}
+
+.login-page__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.login-page__brand svg {
+  width: 28px;
+  height: 28px;
+}
+
+.login-page__brand h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.3px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-form__field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.login-form__field input {
+  padding: 11px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-form__field input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.login-form__field input::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+}
+
+.login-form__error {
+  font-size: 13px;
+  color: var(--color-badge-borrowed-text);
+  background-color: var(--color-badge-borrowed-bg);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.login-form__submit {
+  margin-top: 4px;
+  padding: 12px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.18s ease;
+}
+
+.login-form__submit:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.login-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .login-page__card {
+    padding: 30px 22px;
+  }
+}

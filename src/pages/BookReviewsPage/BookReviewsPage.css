@@ -1,0 +1,66 @@
+.book-reviews {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 16px var(--color-card-shadow);
+}
+
+.book-reviews__title {
+  font-size: 1.2rem;
+  color: var(--color-text-primary);
+  margin-bottom: 14px;
+}
+
+.book-reviews__list {
+  display: grid;
+  gap: 12px;
+}
+
+.book-reviews__item {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background-color: var(--color-background);
+}
+
+.book-reviews__header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.book-reviews__reviewer {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.book-reviews__rating {
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  justify-self: end;
+}
+
+.book-reviews__star {
+  color: var(--color-border);
+}
+
+.book-reviews__star--filled {
+  color: var(--color-primary);
+  fill: currentColor;
+}
+
+.book-reviews__date {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.book-reviews__comment {
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}

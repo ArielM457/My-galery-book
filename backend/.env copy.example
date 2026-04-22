@@ -1,0 +1,4 @@
+PORT=3001
+WISHLIST_STORAGE_PROVIDER=azure_blob
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=<your_account>;AccountKey=<your_key>;EndpointSuffix=core.windows.net
+AZURE_BLOB_CONTAINER=julibrary-data

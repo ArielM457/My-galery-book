@@ -1,0 +1,8 @@
+.home-page__controls-section {
+  margin-bottom: 22px;
+  padding: 8px 0 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
